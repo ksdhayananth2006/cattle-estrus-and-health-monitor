@@ -1,0 +1,21 @@
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Environments
+.venv/
+venv/
+ENV/
+env/
+
+# Streamlit secrets (protect API keys & passwords)
+.streamlit/secrets.toml
+
+# Local database files (optional - SQLite db can be gitignored so production uses fresh or Postgres)
+# bovigenix.db
+
+# OS generated files
+.DS_Store
+Thumbs.db
