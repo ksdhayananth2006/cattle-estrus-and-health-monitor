@@ -9,8 +9,8 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import database
-from utils.calculations import calculate_thi, get_heat_stress_category
-from utils.visualizations import plot_thi_gauge
+from calculations import calculate_thi, get_heat_stress_category
+from visualizations import plot_thi_gauge
 import plotly.graph_objects as go
 
 st.markdown("""
