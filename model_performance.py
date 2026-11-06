@@ -10,8 +10,8 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import database
-from models.estrus_model import train_estrus_models
-from utils.visualizations import (
+from estrus_model import train_estrus_models
+from visualizations import (
     plot_model_comparison,
     plot_confusion_matrix_heatmap,
     plot_feature_importance
