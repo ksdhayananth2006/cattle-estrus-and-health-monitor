@@ -9,13 +9,13 @@ import streamlit as st
 import pandas as pd
 import os
 import database
-from utils.data_processing import (
+from data_processing import (
     normalize_column_names,
     validate_dataset,
     STANDARD_COLUMNS,
     generate_synthetic_cattle_dataset
 )
-from utils.calculations import calculate_thi
+from calculations import calculate_thi
 
 st.markdown("""
 <div class="bovi-header">
