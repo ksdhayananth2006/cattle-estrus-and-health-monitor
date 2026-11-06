@@ -9,8 +9,8 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import database
-from models.estrus_model import train_estrus_models, predict_estrus_for_observation, engineer_individualized_features
-from utils.visualizations import plot_sensor_trends, plot_feature_importance
+from estrus_model import train_estrus_models, predict_estrus_for_observation, engineer_individualized_features
+from visualizations import plot_sensor_trends, plot_feature_importance
 
 st.markdown("""
 <div class="bovi-header">
