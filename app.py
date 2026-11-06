@@ -239,8 +239,8 @@ pages = [
     st.Page("pages/environmental_thi.py", title="Environmental & THI", icon="🌡️"),
     st.Page("pages/reproductive_records.py", title="Reproductive Records", icon="📋"),
     st.Page("pages/alerts.py", title="Alerts & Veterinary Review", icon="🔔"),
-    st.Page("pages/model_performance.py", title="ML Model Performance", icon="📈")
-]
+    st.Page("pages/model_performance.py", title="ML Model Performance", icon="📈")]
+
 
 nav = st.navigation(pages)
 nav.run()
