@@ -158,5 +158,115 @@ with tab_single_cow:
                         <div style="background-color: #fffbeb !important; border: 2px solid #f59e0b !important; padding: 20px 16px !important; border-radius: 10px !important; text-align: center !important; box-shadow: 0 2px 6px rgba(245, 158, 11, 0.15) !important;">
                             <span style="font-size: 2.2rem;">⚠️</span>
                             <div style="color: #92400e !important; font-size: 1.15rem !important; font-weight: 800 !important; margin: 6px 0 !important; letter-spacing: 0.5px !important;">ELEVATED ALERT</div>
-                            <div style="color: #b45309 !important; font-size: 2.6rem !important; font-weight: 900 !important; margin: 0 !important; line-height: 1.1 !important;">
+                            <div style="color: #b45309 !important; font-size: 2.6rem !important; font-weight: 900 !important; margin: 0 !important; line-height: 1.1 !important;">{prob}%</div>
+                            <div style="color: #78350f !important; font-size: 0.85rem !important; font-weight: 600 !important; margin-top: 6px !important;">Moderate Estrus Suspicion</div>
+                        </div>
+                        """, unsafe_allow_html=True)
+                    else:
+                        st.markdown(f"""
+                        <div style="background-color: #f0fdf4 !important; border: 2px solid #22c55e !important; padding: 20px 16px !important; border-radius: 10px !important; text-align: center !important; box-shadow: 0 2px 6px rgba(34, 197, 94, 0.15) !important;">
+                            <span style="font-size: 2.2rem;">✅</span>
+                            <div style="color: #166534 !important; font-size: 1.15rem !important; font-weight: 800 !important; margin: 6px 0 !important; letter-spacing: 0.5px !important;">NORMAL BASELINE</div>
+                            <div style="color: #15803d !important; font-size: 2.6rem !important; font-weight: 900 !important; margin: 0 !important; line-height: 1.1 !important;">{prob}%</div>
+                            <div style="color: #14532d !important; font-size: 0.85rem !important; font-weight: 600 !important; margin-top: 6px !important;">Rest State / Luteal Phase</div>
+                        </div>
+                        """, unsafe_allow_html=True)
 
+                with p_col2:
+                    st.write("**Key Contributing Indicators:**")
+                    st.markdown(f"- **Activity Surge:** Current reading is `{obs_features['activity_ratio']}x` her normal baseline.")
+                    st.markdown(f"- **Rumination Change:** Current rumination is `{obs_features['rumination_ratio']}x` of baseline.")
+                    st.markdown(f"- **Thermal Shift:** Body temperature is `{obs_features['temp_deviation']:+.2f} °C` relative to baseline.")
+
+                    if prob >= 50.0:
+                        st.info("💡 **Veterinary Guidance:** Visually check for clear vaginal mucus discharge and standing response to mounting. If standing heat is confirmed, plan artificial insemination according to the **AM-PM rule** (inseminate ~12 hours after first standing heat detection).")
+                        
+                        if st.button("📢 Generate Estrus Alert for Veterinary Team", type="secondary"):
+                            database.add_alert(
+                                cow_id=selected_cow,
+                                alert_type="Estrus Prediction",
+                                severity="High" if prob >= 70 else "Warning",
+                                message=f"AI model predicted {prob}% estrus probability. Activity {obs_features['activity_ratio']}x baseline, rumination {obs_features['rumination_ratio']}x baseline.",
+                                suggested_action="Verify standing heat and schedule artificial insemination in 12 hours."
+                            )
+                            st.success(f"Alert generated for Cow {selected_cow}!")
+
+
+# ---------------------------------------------------------------------------
+# TAB 2: HERD-WIDE ESTRUS SCANNER
+# ---------------------------------------------------------------------------
+with tab_herd_scanner:
+    st.subheader("Herd-Wide Estrus Scanner")
+    st.caption("Scans the latest sensor observation for every active cow to detect potential estrus candidates.")
+
+    if st.button("Run Herd Scan Now", type="primary"):
+        with st.spinner("Scanning herd observations..."):
+            active_cows = database.get_all_cows(status_filter="Active")
+            candidates = []
+
+            for _, cow in active_cows.iterrows():
+                cid = cow["cow_id"]
+                c_obs = database.get_observations(cow_id=cid, limit=14)
+                
+                if not c_obs.empty and len(c_obs) >= 2:
+                    c_obs = c_obs.sort_values("timestamp")
+                    latest = c_obs.iloc[-1]
+                    
+                    baseline_act = c_obs["activity"].mean() if "activity" in c_obs.columns else 0.0
+                    baseline_rum = c_obs["rumination_time"].mean() if "rumination_time" in c_obs.columns else 0.0
+                    
+                    cur_act = latest.get("activity", 0.0) if "activity" in latest else 0.0
+                    cur_rum = latest.get("rumination_time", 0.0) if "rumination_time" in latest else 0.0
+
+                    act_ratio = cur_act / (baseline_act + 1e-5) if pd.notna(baseline_act) else 1.0
+                    rum_ratio = cur_rum / (baseline_rum + 1e-5) if pd.notna(baseline_rum) else 1.0
+
+                    # Screening rule: Activity surge > 1.5x and rumination drop < 0.85x
+                    is_candidate = (act_ratio >= 1.5 and rum_ratio <= 0.85)
+
+                    candidates.append({
+                        "Cow ID": cid,
+                        "Name": cow["name"],
+                        "Breed": cow["breed"],
+                        "Parity": cow["parity"],
+                        "Latest Timestamp": latest.get("timestamp", "N/A"),
+                        "Activity Ratio": round(act_ratio, 2),
+                        "Rumination Ratio": round(rum_ratio, 2),
+                        "Body Temp (°C)": latest.get("body_temperature", None),
+                        "Estrus Suspected": "🔥 YES" if is_candidate else "No"
+                    })
+
+            if candidates:
+                cand_df = pd.DataFrame(candidates)
+                st.dataframe(cand_df, use_container_width=True, hide_index=True)
+                
+                estrus_cows = cand_df[cand_df["Estrus Suspected"] == "🔥 YES"]
+                if not estrus_cows.empty:
+                    st.warning(f"Detected {len(estrus_cows)} cow(s) showing behavioral indicators of estrus!")
+                else:
+                    st.success("No cows currently exhibiting estrus behavioral surges.")
+            else:
+                st.info("Insufficient observation history to scan herd.")
+
+
+# ---------------------------------------------------------------------------
+# TAB 3: MODEL LOGIC & FEATURE EXPLANATIONS
+# ---------------------------------------------------------------------------
+with tab_training_info:
+    st.subheader("Biological & Algorithmic Rationale")
+    st.markdown("""
+    ### Why Individualized Baselines Matter in Cattle Monitoring
+    In dairy farming, cows exhibit substantial individual variation:
+    - A naturally energetic heifer might take **300 steps/hour** normally.
+    - An older, placid cow in her 4th lactation might only take **180 steps/hour**.
+
+    If we use a **fixed generic threshold** (e.g. `activity > 250 steps`), we will generate:
+    - **False Positives** for high-activity cows.
+    - **False Negatives** (missed heats) for placid cows.
+
+    ### How BOVIGENIX Solves This:
+    Instead of relying strictly on absolute values, BOVIGENIX computes an **Individualized Ratio**:
+    $$\\text{Activity Ratio} = \\frac{\\text{Current Activity}}{\\text{Cow's 7-Day Moving Average}}$$
+
+    A ratio $> 1.8$ means the cow is moving **80% more than her personal normal level**, providing accurate detection across all temperaments and breeds!
+    """)
