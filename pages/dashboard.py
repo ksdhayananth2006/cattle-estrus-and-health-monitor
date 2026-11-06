@@ -8,8 +8,8 @@ reproductive schedules, and sensor time-series trends retrieved from the databas
 import streamlit as st
 import database
 import pandas as pd
-from utils.visualizations import plot_herd_status_donut, plot_sensor_trends
-from utils.calculations import calculate_age
+from visualizations import plot_herd_status_donut, plot_sensor_trends
+from calculations import calculate_age
 
 st.markdown("""
 <div class="bovi-header">
