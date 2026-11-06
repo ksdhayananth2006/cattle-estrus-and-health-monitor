@@ -16,7 +16,7 @@ Architecture:
 import streamlit as st
 import os
 import database
-from utils.data_processing import generate_synthetic_cattle_dataset
+from data_processing import generate_synthetic_cattle_dataset
 
 # 1. Configure Streamlit Page Settings
 st.set_page_config(
