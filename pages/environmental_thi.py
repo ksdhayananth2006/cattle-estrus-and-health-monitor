@@ -1,3 +1,4 @@
+"""
 BOVIGENIX - Module F: Environmental Monitoring & THI (pages/environmental_thi.py)
 ---------------------------------------------------------------------------------
 Assesses thermal load and heat stress risk on dairy cattle using the standard
