@@ -18,7 +18,7 @@ import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
 import random
-from utils.calculations import calculate_thi
+from calculations import calculate_thi
 
 
 # Standard internal column names expected by BOVIGENIX
