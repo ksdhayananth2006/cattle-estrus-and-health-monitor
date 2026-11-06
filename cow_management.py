@@ -9,8 +9,8 @@ import streamlit as st
 import database
 import pandas as pd
 from datetime import date, datetime
-from utils.calculations import calculate_age
-from utils.visualizations import plot_sensor_trends
+from calculations import calculate_age
+from visualizations import plot_sensor_trends
 
 st.markdown("""
 <div class="bovi-header">
