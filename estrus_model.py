@@ -24,7 +24,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
 from datetime import datetime
-from utils.calculations import calculate_age, calculate_thi, calculate_percentage_deviation
+from calculations import calculate_age, calculate_thi, calculate_percentage_deviation
 
 
 def engineer_individualized_features(df):
