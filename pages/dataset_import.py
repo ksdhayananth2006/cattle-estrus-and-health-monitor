@@ -15,7 +15,7 @@ from data_processing import (
     STANDARD_COLUMNS,
     generate_synthetic_cattle_dataset
 )
-from utils.calculations import calculate_thi
+from calculations import calculate_thi
 
 st.markdown("""
 <div class="bovi-header">
