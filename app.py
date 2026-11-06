@@ -245,5 +245,3 @@ pages = [
 nav = st.navigation(pages)
 nav.run()
 
-nav = st.navigation(pages)
-nav.run()
