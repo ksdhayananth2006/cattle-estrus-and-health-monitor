@@ -10,7 +10,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import database
-from models.health_model import evaluate_rule_based_health_risks, train_supervised_health_model
+from health_model import evaluate_rule_based_health_risks, train_supervised_health_model
 
 st.markdown("""
 <div class="bovi-header">
